@@ -1,17 +1,71 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui";
 import { ArrowRight, Home, MessageCircle, Shield, DollarSign } from "lucide-react";
+import { KYC_STATUS, KYC_STATUS_LABELS, PAYMENT_STATUS } from "@/api/types";
+import { AdminPage } from "@/pages/app/AdminPage";
 import { useAuth } from "@/hooks/use-auth";
+import { getConversations } from "@/services/chat.service";
+import { getKycStatus } from "@/services/kyc.service";
+import { getListings } from "@/services/listings.service";
+import { getPayments } from "@/services/payments.service";
 
 export function DashboardPage() {
   const { user, isAdmin } = useAuth();
 
-  // Placeholder stats - these would come from API calls in a real app
+  if (isAdmin) {
+    return <AdminPage embedded />;
+  }
+
+  const listingsQuery = useQuery({
+    queryKey: ["dashboard", "my-listings"],
+    queryFn: () => getListings({ pageNumber: 1, pageSize: 1 }),
+  });
+
+  const conversationsQuery = useQuery({
+    queryKey: ["dashboard", "conversations"],
+    queryFn: () => getConversations({ pageNumber: 1, pageSize: 50 }),
+  });
+
+  const kycQuery = useQuery({
+    queryKey: ["dashboard", "kyc-status"],
+    queryFn: getKycStatus,
+  });
+
+  const paymentsQuery = useQuery({
+    queryKey: ["dashboard", "payments-held"],
+    queryFn: () => getPayments({ pageNumber: 1, pageSize: 100, status: PAYMENT_STATUS.HELD }),
+  });
+
+  const conversationData = conversationsQuery.data?.data ?? [];
+  const unreadCount = conversationData.reduce((sum, conversation) => sum + (conversation.unreadCount ?? 0), 0);
+  const escrowHeld = (paymentsQuery.data?.data ?? []).reduce((sum, payment) => sum + payment.amount, 0);
+
   const stats = [
-    { label: "Active Listings", value: "0", icon: Home, color: "text-primary" },
-    { label: "Messages", value: "0", icon: MessageCircle, color: "text-accent-warm" },
-    { label: "KYC Status", value: "Pending", icon: Shield, color: "text-warning" },
-    { label: "Escrow Held", value: "¥0", icon: DollarSign, color: "text-success" },
+    {
+      label: "My Listings",
+      value: String(listingsQuery.data?.pagination?.totalRecords ?? 0),
+      icon: Home,
+      color: "text-primary",
+    },
+    {
+      label: "Unread Messages",
+      value: String(unreadCount),
+      icon: MessageCircle,
+      color: "text-accent-warm",
+    },
+    {
+      label: "KYC Status",
+      value: KYC_STATUS_LABELS[kycQuery.data?.data?.status ?? KYC_STATUS.NONE],
+      icon: Shield,
+      color: "text-warning",
+    },
+    {
+      label: "Escrow Held",
+      value: `¥${escrowHeld.toFixed(2)}`,
+      icon: DollarSign,
+      color: "text-success",
+    },
   ];
 
   return (

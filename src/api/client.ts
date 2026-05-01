@@ -52,13 +52,15 @@ function buildHeaders(
  * Parse JSON response body and throw on non-ok status.
  * On 401 Unauthorized, clear session and re-throw.
  */
-async function parseResponse<T>(res: Response): Promise<T> {
+async function parseResponse<T>(
+  res: Response,
+  options?: { clearOnUnauthorized?: boolean },
+): Promise<T> {
   const text = await res.text();
   const body = text ? (JSON.parse(text) as T | ApiError) : null;
 
   if (!res.ok) {
-    // Clear session on 401 since backend has no refresh endpoint
-    if (res.status === 401) {
+    if (res.status === 401 && options?.clearOnUnauthorized) {
       clearAuthSession();
     }
     throw body as ApiError;
@@ -77,7 +79,11 @@ async function request<T>(path: string, init: RequestInit): Promise<T> {
     credentials: "include",
   });
 
-  return parseResponse<T>(res);
+  const headers = init.headers as Record<string, string> | undefined;
+
+  return parseResponse<T>(res, {
+    clearOnUnauthorized: Boolean(headers?.Authorization),
+  });
 }
 
 /**
@@ -89,7 +95,11 @@ async function requestByUrl<T>(url: string, init: RequestInit): Promise<T> {
     credentials: "include",
   });
 
-  return parseResponse<T>(res);
+  const headers = init.headers as Record<string, string> | undefined;
+
+  return parseResponse<T>(res, {
+    clearOnUnauthorized: Boolean(headers?.Authorization),
+  });
 }
 
 export const apiClient = {
@@ -100,18 +110,20 @@ export const apiClient = {
     });
   },
 
-  async getPaginated<T>(
+  async getPaginated<T, TParams extends object>(
     path: string,
-    params?: Record<string, string | number | boolean>,
+    params?: TParams,
   ): Promise<PaginatedApiResponse<T>> {
     const url = new URL(`${API_BASE_URL}${path}`);
 
     if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          url.searchParams.set(key, String(value));
-        }
-      });
+      Object.entries(params as Record<string, unknown>).forEach(
+        ([key, value]) => {
+          if (value !== undefined && value !== null) {
+            url.searchParams.set(key, String(value));
+          }
+        },
+      );
     }
 
     const response = await requestByUrl<PaginatedApiResponse<T>>(
@@ -184,14 +196,15 @@ export const apiClient = {
    * Used for streaming file content (e.g., photos, KYC documents).
    */
   async downloadFile(path: string): Promise<{ blob: Blob; filename?: string }> {
+    const headers = buildHeaders();
     const res = await fetch(`${API_BASE_URL}${path}`, {
       method: "GET",
-      headers: buildHeaders(),
+      headers,
       credentials: "include",
     });
 
     if (!res.ok) {
-      if (res.status === 401) {
+      if (res.status === 401 && headers.Authorization) {
         clearAuthSession();
       }
       throw new Error(`Download failed: ${res.statusText}`);

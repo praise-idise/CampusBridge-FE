@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Home,
@@ -11,7 +11,6 @@ import {
   Monitor,
   Sun,
   X,
-  Users,
   Store,
 } from "lucide-react";
 import { Button } from "@/components/ui";
@@ -31,8 +30,7 @@ const navItems: NavItem[] = [
   { label: "Listings", to: "/app/listings", icon: Store },
   { label: "Messages", to: "/app/messages", icon: MessageCircle },
   { label: "Payments", to: "/app/payments", icon: DollarSign },
-  { label: "Verification", to: "/app/verification", icon: ShieldAlert },
-  { label: "Admin", to: "/app/admin", icon: Users, adminOnly: true },
+  { label: "Verification", to: "/app/verification", icon: ShieldAlert, adminOnly: false },
 ];
 
 const themeOptions: {
@@ -47,7 +45,7 @@ const themeOptions: {
 
 export function AppShellLayout() {
   const navigate = useNavigate();
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, isAuthenticated } = useAuth();
   const { theme, setTheme } = useTheme();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const pathname = useRouterState({
@@ -58,6 +56,12 @@ export function AppShellLayout() {
     if (!to) return false;
     return pathname === to || pathname.startsWith(`${to}/`);
   }
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate({ to: "/auth/login" });
+    }
+  }, [isAuthenticated, navigate]);
 
   async function handleLogout() {
     await logout();
@@ -101,7 +105,10 @@ export function AppShellLayout() {
     );
   }
 
-  const visibleNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
+  const visibleNavItems = navItems.filter((item) => {
+    if (isAdmin && item.to === "/app/verification") return false;
+    return !item.adminOnly || isAdmin;
+  });
 
   function AppNavigation({ onItemClick }: { onItemClick?: () => void }) {
     return (

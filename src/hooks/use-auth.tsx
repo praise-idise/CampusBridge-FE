@@ -1,7 +1,7 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
-import { clearAuthSession, getAccessToken, getAuthUser, setAuthSession, type AuthUser } from '@/auth/session'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { AUTH_STATE_CHANGED_EVENT, clearAuthSession, getAccessToken, getAuthUser, setAuthSession, type AuthUser } from '@/auth/session'
 import { login as loginRequest, logout as logoutRequest, register as registerRequest, changePassword as changePasswordRequest } from '@/services/auth.service'
-import type { RegisterDTO, ChangePasswordDTO } from '@/api/types'
+import { isApiError, type RegisterDTO, type ChangePasswordDTO } from '@/api/types'
 
 interface AuthContextValue {
     user: AuthUser | null
@@ -19,6 +19,21 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(() => getAccessToken())
     const [user, setUser] = useState<AuthUser | null>(() => getAuthUser())
+
+    useEffect(() => {
+        function syncAuthState() {
+            setToken(getAccessToken())
+            setUser(getAuthUser())
+        }
+
+        window.addEventListener(AUTH_STATE_CHANGED_EVENT, syncAuthState)
+        window.addEventListener('storage', syncAuthState)
+
+        return () => {
+            window.removeEventListener(AUTH_STATE_CHANGED_EVENT, syncAuthState)
+            window.removeEventListener('storage', syncAuthState)
+        }
+    }, [])
 
     async function login(payload: { email: string; password: string }) {
         const response = await loginRequest(payload)
@@ -49,6 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function logout() {
         try {
             await logoutRequest()
+        } catch (error) {
+            if (!isApiError(error) || error.statusCode !== 401) {
+                throw error
+            }
         } finally {
             clearAuthSession()
             setToken(null)

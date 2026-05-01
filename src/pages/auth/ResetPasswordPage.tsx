@@ -1,4 +1,4 @@
-import {  useState } from 'react'
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useSearch } from '@tanstack/react-router'
 import { Eye, EyeOff } from 'lucide-react'
@@ -22,13 +22,8 @@ const resetPasswordSchema = z.object({
 
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
 
-type ResetPasswordSearch = {
-    email?: string
-    token?: string
-}
-
 export function ResetPasswordPage() {
-    const search = useSearch({ from: '/auth/reset-password' }) as ResetPasswordSearch
+    const search = useSearch({ from: '/auth/reset-password' })
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [submitted, setSubmitted] = useState(false)

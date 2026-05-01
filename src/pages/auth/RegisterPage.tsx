@@ -104,12 +104,13 @@ export function RegisterPage() {
                         </p>
                         <div className="space-y-2">
                             <p className="text-xs text-muted-foreground">Didn't receive the email?</p>
-                            <a
-                                href={`/verify-email?email=${encodeURIComponent(submittedEmail)}`}
+                            <Link
+                                to="/verify-email"
+                                search={{ email: submittedEmail }}
                                 className="text-primary hover:underline text-sm block"
                             >
                                 Resend verification link
-                            </a>
+                            </Link>
                         </div>
                     </CardContent>
                 </Card>
@@ -135,21 +136,21 @@ export function RegisterPage() {
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-2">
                                 <Label htmlFor="firstName">First Name</Label>
-                                <Input 
-                                    id="firstName" 
-                                    placeholder="John" 
-                                    error={Boolean(errors.firstName)} 
-                                    {...register('firstName')} 
+                                <Input
+                                    id="firstName"
+                                    placeholder="John"
+                                    error={Boolean(errors.firstName)}
+                                    {...register('firstName')}
                                 />
                                 {errors.firstName && <p className="text-xs text-destructive">{errors.firstName.message}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="lastName">Last Name</Label>
-                                <Input 
-                                    id="lastName" 
-                                    placeholder="Doe" 
-                                    error={Boolean(errors.lastName)} 
-                                    {...register('lastName')} 
+                                <Input
+                                    id="lastName"
+                                    placeholder="Doe"
+                                    error={Boolean(errors.lastName)}
+                                    {...register('lastName')}
                                 />
                                 {errors.lastName && <p className="text-xs text-destructive">{errors.lastName.message}</p>}
                             </div>
@@ -159,12 +160,12 @@ export function RegisterPage() {
                             <Label htmlFor="email" required>
                                 Email
                             </Label>
-                            <Input 
-                                id="email" 
-                                type="email" 
-                                placeholder="your@campus.edu" 
-                                error={Boolean(errors.email)} 
-                                {...register('email')} 
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="your@campus.edu"
+                                error={Boolean(errors.email)}
+                                {...register('email')}
                             />
                             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
                         </div>

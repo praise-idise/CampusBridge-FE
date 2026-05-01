@@ -89,20 +89,28 @@ export interface ResendVerificationDTO {
 // ═══════════════════════════════════════════════════════════════
 
 export enum LISTING_TYPE {
-  ACCOMMODATION = 1,
-  ROOMMATE = 2,
-  MARKETPLACE = 3,
-  MONEY_EXCHANGE = 4,
-  SERVICE = 5,
-  OTHER = 6,
+  ACCOMMODATION = "ACCOMMODATION",
+  ROOMMATE = "ROOMMATE",
+  MARKETPLACE = "MARKETPLACE",
+  MONEY_EXCHANGE = "MONEY_EXCHANGE",
+  SERVICE = "SERVICE",
+  OTHER = "OTHER",
 }
 
 export enum LISTING_STATUS {
-  DRAFT = 0,
-  ACTIVE = 1,
-  CLOSED = 2,
-  ARCHIVED = 3,
+  ACTIVE = "ACTIVE",
+  CLOSED = "CLOSED",
+  ARCHIVED = "ARCHIVED",
 }
+
+export const LISTING_TYPE_OPTIONS = [
+  LISTING_TYPE.ACCOMMODATION,
+  LISTING_TYPE.ROOMMATE,
+  LISTING_TYPE.MARKETPLACE,
+  LISTING_TYPE.MONEY_EXCHANGE,
+  LISTING_TYPE.SERVICE,
+  LISTING_TYPE.OTHER,
+] as const;
 
 export const LISTING_TYPE_LABELS: Record<LISTING_TYPE, string> = {
   [LISTING_TYPE.ACCOMMODATION]: "Accommodation",
@@ -113,8 +121,13 @@ export const LISTING_TYPE_LABELS: Record<LISTING_TYPE, string> = {
   [LISTING_TYPE.OTHER]: "Other",
 };
 
+export const LISTING_STATUS_OPTIONS = [
+  LISTING_STATUS.ACTIVE,
+  LISTING_STATUS.CLOSED,
+  LISTING_STATUS.ARCHIVED,
+] as const;
+
 export const LISTING_STATUS_LABELS: Record<LISTING_STATUS, string> = {
-  [LISTING_STATUS.DRAFT]: "Draft",
   [LISTING_STATUS.ACTIVE]: "Active",
   [LISTING_STATUS.CLOSED]: "Closed",
   [LISTING_STATUS.ARCHIVED]: "Archived",
@@ -122,14 +135,17 @@ export const LISTING_STATUS_LABELS: Record<LISTING_STATUS, string> = {
 
 export interface ListingPhoto {
   id: string;
-  listingId: string;
-  url?: string;
+  listingPhotoId?: string;
+  fileName?: string;
+  contentType?: string;
   uploadedAt: string;
 }
 
 export interface Listing {
   id: string;
+  listingId?: string;
   ownerId: string;
+  ownerUserId?: string;
   title: string;
   description: string;
   price: number;
@@ -138,7 +154,7 @@ export interface Listing {
   status: LISTING_STATUS;
   photos?: ListingPhoto[];
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateListingRequestDTO {
@@ -171,22 +187,33 @@ export interface ListingRequestParameters {
 
 export interface Message {
   id: string;
+  messageId?: string;
   conversationId: string;
   senderId: string;
+  senderUserId?: string;
   senderEmail?: string;
+  senderName?: string;
   content: string;
-  createdAt: string;
+  createdAt?: string;
+  sentAt?: string;
   isRead: boolean;
+  isMine?: boolean;
 }
 
 export interface Conversation {
   id: string;
-  participantIds: string[];
+  conversationId?: string;
+  participantIds?: string[];
+  otherUserId?: string;
+  otherUserName?: string;
+  lastMessagePreview?: string;
+  unreadCount?: number;
   lastMessageTime?: string;
+  lastMessageAt?: string;
   isClosed: boolean;
   listingId?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface StartConversationRequestDTO {
@@ -214,12 +241,20 @@ export interface MessageRequestParameters {
 // ═══════════════════════════════════════════════════════════════
 
 export enum PAYMENT_STATUS {
-  HELD = 1,
-  RELEASED = 2,
-  DISPUTED = 3,
-  REFUNDED = 4,
-  CANCELLED = 5,
+  HELD = "HELD",
+  RELEASED = "RELEASED",
+  DISPUTED = "DISPUTED",
+  REFUNDED = "REFUNDED",
+  CANCELLED = "CANCELLED",
 }
+
+export const PAYMENT_STATUS_OPTIONS = [
+  PAYMENT_STATUS.HELD,
+  PAYMENT_STATUS.RELEASED,
+  PAYMENT_STATUS.DISPUTED,
+  PAYMENT_STATUS.REFUNDED,
+  PAYMENT_STATUS.CANCELLED,
+] as const;
 
 export const PAYMENT_STATUS_LABELS: Record<PAYMENT_STATUS, string> = {
   [PAYMENT_STATUS.HELD]: "Held",
@@ -231,15 +266,21 @@ export const PAYMENT_STATUS_LABELS: Record<PAYMENT_STATUS, string> = {
 
 export interface Payment {
   id: string;
+  paymentId?: string;
   payerId: string;
+  payerUserId?: string;
   payeeId: string;
+  payeeUserId?: string;
   amount: number;
   currency: string;
   status: PAYMENT_STATUS;
   listingId?: string;
   note?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  releasedAt?: string;
+  disputedAt?: string;
+  refundedAt?: string;
 }
 
 export interface CreatePaymentHoldRequestDTO {
@@ -265,10 +306,10 @@ export interface PaymentRequestParameters {
 // ═══════════════════════════════════════════════════════════════
 
 export enum KYC_STATUS {
-  NONE = 0,
-  PENDING = 1,
-  VERIFIED = 2,
-  REJECTED = 3,
+  NONE = "NONE",
+  PENDING = "PENDING",
+  VERIFIED = "VERIFIED",
+  REJECTED = "REJECTED",
 }
 
 export const KYC_STATUS_LABELS: Record<KYC_STATUS, string> = {
@@ -280,6 +321,7 @@ export const KYC_STATUS_LABELS: Record<KYC_STATUS, string> = {
 
 export interface KycDocument {
   id: string;
+  kycDocumentId?: string;
   userId: string;
   documentType: string;
   status: KYC_STATUS;
@@ -289,6 +331,20 @@ export interface KycDocument {
 
 export interface UploadIdRequestDTO {
   file: File;
+}
+
+export interface KycUploadResponseDTO {
+  kycDocumentId: string;
+  status: KYC_STATUS;
+  uploadedAt: string;
+}
+
+export interface KycVerificationResponseDTO {
+  status: KYC_STATUS;
+  currentDocumentId?: string;
+  currentDocumentFileName?: string;
+  uploadedAt?: string;
+  rejectionReason?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -302,21 +358,55 @@ export enum ROLE_TYPE {
 
 export interface ApplicationUser {
   id: string;
+  userId?: string;
   email: string;
   firstName?: string;
   lastName?: string;
+  phoneNumber?: string;
   kycStatus: KYC_STATUS;
   isActive: boolean;
   isDeleted: boolean;
   createdAt: string;
   roles?: string[];
+  kycRejectionReason?: string;
 }
 
 export interface UpdateUserKycStatusRequestDTO {
   status: KYC_STATUS;
+  reason?: string;
 }
 
 export interface UserRequestParameters {
   pageNumber?: number;
   pageSize?: number;
+}
+
+export interface SupportContactDTO {
+  userId: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Payment Summary (Admin)
+// ═══════════════════════════════════════════════════════════════
+
+export interface PaymentSummaryDTO {
+  heldCount: number;
+  heldTotal: number;
+  releasedCount: number;
+  releasedTotal: number;
+  disputedCount: number;
+  disputedTotal: number;
+  refundedCount: number;
+  refundedTotal: number;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Listing Moderation (Admin)
+// ═══════════════════════════════════════════════════════════════
+
+export interface ModerateListingRequestDTO {
+  status: LISTING_STATUS;
 }

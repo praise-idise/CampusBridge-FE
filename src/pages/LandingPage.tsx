@@ -231,7 +231,7 @@ export function LandingPage() {
               </div>
               <span className="font-semibold">CampusBridge</span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center">
               © {new Date().getFullYear()} CampusBridge. Empowering campus communities.
             </p>
           </div>
