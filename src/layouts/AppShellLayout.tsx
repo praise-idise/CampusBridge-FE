@@ -27,7 +27,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", to: "/app/dashboard", icon: Home },
-  { label: "Listings", to: "/app/listings", icon: Store },
+  { label: "Market Place", to: "/app/listings", icon: Store },
   { label: "Messages", to: "/app/messages", icon: MessageCircle },
   { label: "Payments", to: "/app/payments", icon: DollarSign },
   { label: "Verification", to: "/app/verification", icon: ShieldAlert, adminOnly: false },
@@ -105,6 +105,29 @@ export function AppShellLayout() {
     );
   }
 
+  function LanguageSelector({ id }: { id: string }) {
+    return (
+      <div className="mt-4 rounded-md border border-border bg-muted/40 p-2">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Language
+        </p>
+        <label htmlFor={id} className="sr-only">
+          Select language
+        </label>
+        <select
+          id={id}
+          name={id}
+          defaultValue="en"
+          className="w-full rounded-md border border-border bg-background px-2.5 py-2 text-xs font-medium text-foreground outline-none transition-colors focus:border-primary"
+          aria-label="Select language"
+        >
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </div>
+    );
+  }
+
   const visibleNavItems = navItems.filter((item) => {
     if (isAdmin && item.to === "/app/verification") return false;
     return !item.adminOnly || isAdmin;
@@ -166,6 +189,7 @@ export function AppShellLayout() {
             </div>
           </Link>
           <AppNavigation />
+          <LanguageSelector id="app-language-desktop" />
           <ThemeSelector />
         </aside>
 
@@ -230,6 +254,7 @@ export function AppShellLayout() {
             </div>
 
             <AppNavigation onItemClick={closeMobileNav} />
+            <LanguageSelector id="app-language-mobile" />
             <ThemeSelector />
           </aside>
         </div>

@@ -196,7 +196,7 @@ export function ListingsPage() {
     return (
         <main className="min-w-0 space-y-6">
             <div className="flex flex-col gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight">Listings</h1>
+                <h1 className="text-2xl font-semibold tracking-tight">Market Place</h1>
                 <p className="text-sm text-muted-foreground">Browse active listings across campus or manage your own.</p>
             </div>
 

@@ -3,6 +3,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { MessageCircle, Lock, Users, Home, Shield, Zap } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import marketplaceImage from "@/Images/Gemini_Generated_Image_kvzomckvzomckvzo.png";
+import escrowImage from "@/Images/Gemini_Generated_Image_kvzomckvzomckvzo(1).png";
+import communityImage from "@/Images/Gemini_Generated_Image_kvzomckvzomckvzo(2).png";
 
 const features = [
   {
@@ -49,6 +52,30 @@ const stats = [
   { label: "Secure Escrow Transactions", value: "$50k+" },
 ];
 
+const trustVisuals = [
+  {
+    title: "The Trustworthy Campus Marketplace",
+    description:
+      "Local, friendly, and reliable listings built for student-to-student transactions.",
+    stat: "Campus Listings - 500+",
+    image: marketplaceImage,
+  },
+  {
+    title: "The Security of Escrow Payments",
+    description:
+      "Funds are held neutrally until both students confirm the transaction is complete.",
+    stat: "Secure Escrow Transactions - $50k+",
+    image: escrowImage,
+  },
+  {
+    title: "The Verified Student Community",
+    description:
+      "KYC-backed verification keeps the community authentic and student-first.",
+    stat: "Verified Users - 1000+",
+    image: communityImage,
+  },
+];
+
 export function LandingPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -57,27 +84,40 @@ export function LandingPage() {
     <main className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
       <header className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl gap-3 px-4 py-4 flex-row items-center justify-between sm:px-6 lg:px-8 ">
           <div className="flex items-center gap-2">
             <div className="inline-flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
               CB
             </div>
             <span className="text-lg font-semibold">CampusBridge</span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex w-fit flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <label htmlFor="landing-language" className="sr-only">
+              Select language
+            </label>
+            <select
+              id="landing-language"
+              name="landing-language"
+              defaultValue="en"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-primary sm:w-auto"
+              aria-label="Select language"
+            >
+              <option value="en">English</option>
+              <option value="zh">中文</option>
+            </select>
             {isAuthenticated ? (
-              <Button onClick={() => navigate({ to: "/app/dashboard" })}>
+              <Button className="w-full sm:w-auto" onClick={() => navigate({ to: "/app/dashboard" })}>
                 Go to Dashboard
               </Button>
             ) : (
-              <>
-                <Button variant="outline" onClick={() => navigate({ to: "/auth/login" })}>
+              <div className="hidden md:flex md:gap-2">
+                <Button className="w-full sm:w-auto" variant="outline" onClick={() => navigate({ to: "/auth/login" })}>
                   Sign In
                 </Button>
-                <Button onClick={() => navigate({ to: "/auth/register" })}>
+                <Button className="w-full sm:w-auto" onClick={() => navigate({ to: "/auth/register" })}>
                   Join Now
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -129,6 +169,41 @@ export function LandingPage() {
               <p className="mt-2 text-sm text-muted-foreground">{stat.label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Trust Visuals Section */}
+      <section className="py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <Badge variant="outline" className="mb-4 border-primary/30 bg-primary/10 text-primary">
+              Student Trust In Action
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Built for safe campus transactions
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-8 lg:grid-cols-3">
+            {trustVisuals.map((item) => (
+              <article
+                key={item.title}
+                className="overflow-hidden rounded-xl border border-border bg-surface/70 shadow-sm"
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-52 w-full object-cover"
+                  loading="lazy"
+                />
+                <div className="p-5">
+                  <p className="text-xs font-medium uppercase tracking-wide text-primary">{item.stat}</p>
+                  <h3 className="mt-2 text-lg font-semibold">{item.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
