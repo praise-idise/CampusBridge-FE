@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { AUTH_STATE_CHANGED_EVENT, clearAuthSession, getAccessToken, getAuthUser, setAuthSession, type AuthUser } from '@/auth/session'
 import { login as loginRequest, logout as logoutRequest, register as registerRequest, changePassword as changePasswordRequest } from '@/services/auth.service'
-import { isApiError, type RegisterDTO, type ChangePasswordDTO } from '@/api/types'
+import { type RegisterDTO, type ChangePasswordDTO } from '@/api/types'
 
 interface AuthContextValue {
     user: AuthUser | null
@@ -61,18 +61,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // User will be directed to verify-email flow
     }
 
-    async function logout() {
-        try {
-            await logoutRequest()
-        } catch (error) {
-            if (!isApiError(error) || error.statusCode !== 401) {
-                throw error
-            }
-        } finally {
-            clearAuthSession()
-            setToken(null)
-            setUser(null)
-        }
+    function logout() {
+        const logoutRequestPromise = logoutRequest().catch(() => {
+            // Local logout should not depend on the API being reachable.
+        })
+
+        clearAuthSession()
+        setToken(null)
+        setUser(null)
+
+        void logoutRequestPromise
+        return Promise.resolve()
     }
 
     async function changePassword(payload: ChangePasswordDTO) {

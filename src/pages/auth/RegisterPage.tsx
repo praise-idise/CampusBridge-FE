@@ -102,16 +102,6 @@ export function RegisterPage() {
                         <p className="text-sm text-muted-foreground">
                             Check your email (including spam folder) and click the verification link to activate your account. The link expires in 24 hours.
                         </p>
-                        <div className="space-y-2">
-                            <p className="text-xs text-muted-foreground">Didn't receive the email?</p>
-                            <Link
-                                to="/verify-email"
-                                search={{ email: submittedEmail }}
-                                className="text-primary hover:underline text-sm block"
-                            >
-                                Resend verification link
-                            </Link>
-                        </div>
                     </CardContent>
                 </Card>
             </div>

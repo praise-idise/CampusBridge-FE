@@ -79,6 +79,7 @@ const trustVisuals = [
 export function LandingPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const year = new Date().getFullYear();
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -297,20 +298,16 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-surface py-8 sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <div className="inline-flex size-6 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-                CB
-              </div>
-              <span className="font-semibold">CampusBridge</span>
-            </div>
-            <p className="text-sm text-muted-foreground text-center">
-              © {new Date().getFullYear()} CampusBridge. Empowering campus communities.
-            </p>
-          </div>
-        </div>
+      <footer className="py-4 text-center text-sm text-muted-foreground">
+        © {year} {' '}
+        <a
+          href="https://praiseidise.netlify.app/"
+          target="_blank"
+          rel="noreferrer"
+          className="font-medium text-primary underline-offset-4 hover:underline"
+        >
+          Progomid Solutions
+        </a>
       </footer>
     </main>
   );
